@@ -119,7 +119,7 @@ var Generator = (function () {
         //result = beautify(result, { indent_size: 4, max_preserve_newlines: 2 });
         
         return result;
-    }
+    };
 
     Generator.prototype.createMustacheViewModel = function () {
         var that = this;
@@ -181,10 +181,10 @@ var Generator = (function () {
 
                 params = params.concat(globalParams);
 
+                // Index file!
                 _.forEach(params, function (parameter) {
                     // Ignore headers which are injected by proxies & app servers
                     // eg: https://cloud.google.com/appengine/docs/go/requests#Go_Request_headers
-					
                     if (parameter['x-proxy-header'] && !data.isNode)
                         return;
 
@@ -195,6 +195,8 @@ var Generator = (function () {
 
                     if (parameter.type === 'integer' || parameter.type === 'double')
                         parameter.typescriptType = 'number';
+                    else if(parameter.type === 'object')
+                        parameter.typescriptType = 'any';
                     else
                         parameter.typescriptType = parameter.type;
 
@@ -240,6 +242,7 @@ var Generator = (function () {
                 name: defName,
                 properties: [],
                 refs: [],
+                imports:[]
             };
 
             _.forEach(defin.properties, function (propin, propVal) {
@@ -253,18 +256,38 @@ var Generator = (function () {
                 };
 
                 if (property.isArray)
-                    property.type = _.has(propin.items, '$ref') ? that.camelCase(propin.items["$ref"].replace("#/definitions/", "")) : propin.type;
+                    if(_.has(propin.items, '$ref')){
+                        property.type = that.camelCase(propin.items["$ref"].replace("#/definitions/", ""));
+                    }else if(_.has(propin.items, 'type')) {
+                        property.type = that.camelCase(propin.items["type"]);
+                    }else{
+                        property.type = propin.type;
+                    }
+
                 else
                     property.type = _.has(propin, '$ref') ? that.camelCase(propin["$ref"].replace("#/definitions/", "")) : propin.type;
 
                 if (property.type === 'integer' || property.type === 'double')
                     property.typescriptType = 'number';
+                else if (property.type === 'object')
+                    property.typescriptType = 'any';
                 else
                     property.typescriptType = property.type;
 
 
-                if (property.isRef)
+                if (property.isRef){
                     definition.refs.push(property);
+
+                    // Don't duplicate import statements
+                    var addImport = true;
+                    for(var i=0;i<definition.imports.length;i++){
+                        if(definition.imports[i] === property.type){
+                            addImport = false;
+                        }
+                    }
+                    if(addImport)
+                        definition.imports.push(property.type);
+                }
                 else
                     definition.properties.push(property);
             });
@@ -276,12 +299,12 @@ var Generator = (function () {
             data.definitions[data.definitions.length - 1].last = true;
 
         return data;
-    }
+    };
 
     Generator.prototype.getRefType = function (refString) {
         var segments = refString.split('/');
         return segments.length === 3 ? segments[2] : segments[0];
-    }
+    };
 
     Generator.prototype.getPathToMethodName = function (m, path) {
         if (path === '/' || path === '')
@@ -305,7 +328,7 @@ var Generator = (function () {
         var result = this.camelCase(segments.join('-'));
 
         return m.toLowerCase() + result[0].toUpperCase() + result.substring(1);
-    }
+    };
 
 
     Generator.prototype.camelCase = function (text) {
@@ -329,12 +352,12 @@ var Generator = (function () {
         });
 
         return tokens.join('');
-    }
+    };
 
     Generator.prototype.LogMessage = function (text, param) {
         if (this.Debug)
             console.log(text, param || '');
-    }
+    };
 
     return Generator;
 })();
