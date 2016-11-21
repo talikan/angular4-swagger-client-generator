@@ -2,8 +2,6 @@
 
 var fs = require('fs');
 var Mustache = require('mustache');
-//var beautify = require('js-beautify').js_beautify;
-//var Linter = require('tslint');
 var _ = require('lodash');
 
 var Generator = (function () {
@@ -34,7 +32,7 @@ var Generator = (function () {
         this.viewModel = this.createMustacheViewModel();
 
         this.initialized = true;
-    }
+    };
 
     Generator.prototype.generateAPIClient = function () {
         if (this.initialized !== true)
@@ -72,7 +70,8 @@ var Generator = (function () {
             fs.mkdirSync(outputdir);
 			
         // generate API models				
-        _.forEach(this.viewModel.definitions, function (definition, defName) {
+
+        _.forEach(this.viewModel.definitions, function (definition) {
             that.LogMessage('Rendering template for model: ', definition.name);
             var result = that.renderLintAndBeautify(that.templates.model, definition, that.templates);
 
@@ -101,24 +100,10 @@ var Generator = (function () {
         fs.writeFileSync(outfile, result, 'utf-8')
     };
 
-    Generator.prototype.renderLintAndBeautify = function (tempalte, model) {
+    Generator.prototype.renderLintAndBeautify = function (template, model) {
 
         // Render *****
-        var result = Mustache.render(tempalte, model);
-
-        // Lint *****
-        // var ll = new Linter("noname", rendered, {});
-        // var lintResult = ll.lint();
-        // lintResult.errors.forEach(function (error) {
-        //     if (error.code[0] === 'E')
-        //         throw new Error(error.reason + ' in ' + error.evidence + ' (' + error.code + ')');
-        // });
-
-        // Beautify *****
-        // NOTE: this has been commented because of curly braces were added on newline after beaufity
-        //result = beautify(result, { indent_size: 4, max_preserve_newlines: 2 });
-        
-        return result;
+        return Mustache.render(template, model);
     };
 
     Generator.prototype.createMustacheViewModel = function () {
@@ -137,7 +122,7 @@ var Generator = (function () {
 
         _.forEach(swagger.paths, function (api, path) {
             var globalParams = [];
-
+            debugger;
             _.forEach(api, function (op, m) {
                 if (m.toLowerCase() === 'parameters') {
                     globalParams = op;
@@ -212,7 +197,7 @@ var Generator = (function () {
                     else if (parameter.in === 'path')
                         parameter.isPathParameter = true;
 
-                    else if (parameter.in === 'query') {
+                    else if (parameter.in === 'query' || parameter.in === 'modelbinding') {
                         parameter.isQueryParameter = true;
                         if (parameter['x-name-pattern'])
                             parameter.isPatternType = true;
@@ -228,6 +213,14 @@ var Generator = (function () {
 
                 if (method.parameters.length > 0)
                     method.parameters[method.parameters.length - 1].last = true;
+
+                var responseSchema = op.responses["200"].schema;
+
+                if(_.has(responseSchema, '$ref')){
+                    method.response = that.camelCase(responseSchema["$ref"].replace("#/definitions/", ""));
+                }else{
+                    method.response  = 'any'; //Do some more stuff here!
+                }
 
                 data.methods.push(method);
             });

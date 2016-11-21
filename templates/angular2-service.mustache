@@ -3,113 +3,112 @@ import { Injectable } from '@angular/core';
 import { Http, Response, Headers } from '@angular/http';
 import { {{#definitions}}{{name}}{{^last}}, {{/last}}{{/definitions}} } from './models';
 import 'rxjs/Rx';
-
+import {Observable} from "rxjs";
+import {Action} from "@ngrx/store";
 
 @Injectable()
 /**
- * Created with angular2-swagger-client-generator v{{&version}}
- */
+* Created with angular2-swagger-client-generator v{{&version}}
+*/
 export class ApiClientService {
-	domain:string;
-  
-  constructor(public http: Http){
-    {{#domain}}
-    this.domain = '{{&.}}';
-    {{/domain}}
-    {{^domain}}
-    this.domain = '';
-    {{/domain}}
-  }
-  /*
-	constructor(public http: Http, options?: any) {
-		var domain = (typeof options === 'object') ? options.domain : options;
-		this.domain = typeof(domain) === 'string' ? domain : '{{&domain}}';
-		
-		if(this.domain.length === 0) {
-			throw new Error('Domain parameter must be specified as a string.');
-		}
-		
-		{{#isSecure}}
-			this.token = (typeof options === 'object') ? (options.token ? options.token : {}) : {};
-		{{/isSecure}}
-	}
-  */
 
+    constructor(public http: Http, public domain:string) {
+        if(this.domain.length === 0) {
+            throw new Error('Domain parameter must be specified as a string.');
+        }
+    }
 
 {{#methods}}
-	/**
-	{{#summaryLines}}
-  * {{&.}}
-  {{/summaryLines}}
-  *
-	* @method
-	* @name {{&methodName}}
-	{{#parameters}}
-	{{^isSingleton}}* @param {{=<% %>=}}{<%&type%>}<%={{ }}=%> {{&camelCaseName}} - {{&description}}{{/isSingleton}}
-	{{/parameters}}
-	* 
-	*/
-	public {{&methodName}}({{#parameters}}{{&camelCaseName}}: {{typescriptType}}{{^last}}, {{/last}}{{/parameters}}) {
-		let payload = {};	
-		let queryParameters = {};
-		let headers = new Headers();
-		headers.append('Content-Type', 'application/json');
-		
-{{#parameters}}
-			{{#isQueryParameter}}
-			  {{#isSingleton}}
-		queryParameters['{{&name}}'] = '{{&singleton}}';
-        {{/isSingleton}}
-      
-			  {{^isSingleton}}
-			    {{#isPatternType}}
-		Object.keys(parameters).forEach(function(parameterName) {
-			if(new RegExp('{{&pattern}}').test(parameterName)){
-				queryParameters[parameterName] = parameters[parameterName];
-			}
-		});
-          {{/isPatternType}}
-			    {{^isPatternType}}
-		if(parameters['{{&camelCaseName}}'] !== undefined){
-			queryParameters['{{&name}}'] = parameters['{{&camelCaseName}}'];
-		}
-          {{/isPatternType}}
-        {{/isSingleton}}
-			{{/isQueryParameter}}
-			
-			{{#isHeaderParameter}}
-			  {{#isSingleton}}
-		headers.append('{{&name}}', '{{&singleton}}');
-        {{/isSingleton}}
-        {{^isSingleton}}
-		if(parameters['{{&camelCaseName}}'] !== undefined){
-			headers.append('{{&name}}', parameters['{{&camelCaseName}}']);
-		}
-        {{/isSingleton}}
-			{{/isHeaderParameter}}
-			{{#isBodyParameter}}
-		payload['{{&name}}'] = {{&camelCaseName}};
-			{{/isBodyParameter}}
-			{{#isFormParameter}}
-			  {{#isSingleton}}
-		form['{{&name}}'] = '{{&singleton}}';
-        {{/isSingleton}}
-        {{^isSingleton}}
-		if(parameters['{{&camelCaseName}}'] !== undefined){
-			form['{{&name}}'] = parameters['{{&camelCaseName}}'];
-		}
-			  {{/isSingleton}}
-			{{/isFormParameter}}
-{{/parameters}}		
-		let uri = `{{&backTickPath}}`;
-	  
-		return this.http
-			.{{angular2httpMethod}}(this.domain + uri{{#hasPayload}}, JSON.stringify({{#parameters}}{{#isBodyParameter}}{{&camelCaseName}}{{/isBodyParameter}}{{/parameters}}){{/hasPayload}}, { headers: headers, params: queryParameters })
-			.map((res: Response) => {
-        return res;
-      });
-	}
-	
+    /**
+    {{#summaryLines}}
+        * {{&.}}
+    {{/summaryLines}}
+    *
+    * @method
+    * @name {{&methodName}}
+    {{#parameters}}
+    {{^isSingleton}}* @param {{=<% %>=}}{<%&typescriptType%>}<%={{ }}=%> {{&camelCaseName}} - {{&description}}{{/isSingleton}}
+    {{/parameters}}
+    * @param {(n: any) => Action} success - This is a callback function that returns an action and is used when data is successfully retrieved data from the service
+    * @param {(n: any) => Action} failure - This is a callback function that returns an action and is used when a call to the service fails
+    *
+    */
+    public {{&methodName}}({{#parameters}}{{&camelCaseName}}: {{typescriptType}}{{^last}}, {{/last}}{{/parameters}}, success: (n: {{&response}}) => Action, failure: () => Action) : Observable<Action>{
+        let queryParameters = {};
+        let headers = new Headers();
+    {{#parameters}}
+        {{#isQueryParameter}}
+            {{#isSingleton}}
+        queryParameters['{{&name}}'] = '{{&singleton}}';
+            {{/isSingleton}}
+            {{^isSingleton}}
+                {{#isPatternType}}
+        Object.keys(parameters).forEach(function(parameterName) {
+            if(new RegExp('{{&pattern}}').test(parameterName)){
+                queryParameters[parameterName] = parameters[parameterName];
+            }
+        });
+                {{/isPatternType}}
+                {{^isPatternType}}
+        if({{&camelCaseName}} !== undefined){
+            queryParameters['{{&name}}'] = {{&camelCaseName}};
+        }
+                {{/isPatternType}}
+            {{/isSingleton}}
+        {{/isQueryParameter}}
+        {{#isHeaderParameter}}
+            {{#isSingleton}}
+            headers.append('{{&name}}', '{{&singleton}}');
+            {{/isSingleton}}
+            {{^isSingleton}}
+        if({{&camelCaseName}} !== undefined){
+            headers.append('{{&name}}', {{&camelCaseName}});
+        }
+            {{/isSingleton}}
+        {{/isHeaderParameter}}
+        {{#isBodyParameter}}
+                payload['{{&name}}'] = {{&camelCaseName}};
+        {{/isBodyParameter}}
+        {{#isFormParameter}}
+            {{#isSingleton}}
+        form['{{&name}}'] = '{{&singleton}}';
+            {{/isSingleton}}
+            {{^isSingleton}}
+        if(parameters['{{&camelCaseName}}'] !== undefined){
+            form['{{&name}}'] = parameters['{{&camelCaseName}}'];
+        }
+            {{/isSingleton}}
+        {{/isFormParameter}}
+    {{/parameters}}
+        let uri = `{{&backTickPath}}`;
+
+        return this.MakeRequest<{{&response}}>(uri, headers, queryParameters, success, failure);
+    }
+
 {{/methods}}
 
+    private MakeRequest<T>(uri:string, headers : Headers, queryParameters: any, success: (n: T) => Action, failure: () => Action) : Observable<Action> {
+
+        headers.append('Content-Type', 'application/json');
+
+        let hasQueryParameters = Object.keys(queryParameters).length > 0 && queryParameters.constructor === Object;
+
+        if(hasQueryParameters){
+            let firstEntry = true;
+            uri = `${uri}?`;
+            for(let item in queryParameters) {
+                if(!firstEntry) {
+                    uri = `${uri}&`;
+                }
+                uri = `${uri}${item}=${queryParameters[item]}`;
+                firstEntry = false;
+            }
+        }
+
+        return this.http
+            .get(this.domain + uri, { headers: headers })
+            .map(res => <T>res.json())
+            .map(data => success(data))
+            .catch(x => Observable.of(failure()))
+    }
 }

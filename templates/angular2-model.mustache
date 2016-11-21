@@ -1,9 +1,9 @@
 /* tslint:disable */
-{{#refs}}
-import { {{type}} } from "./{{type}}"
-{{/refs}}
+{{#imports}}
+import { {{.}} } from "./{{.}}"
+{{/imports}}
 
-export class {{&name}} {
+export interface {{&name}} {
 {{#properties}}
 	{{#isArray}}
 		{{name}}: {{typescriptType}}[];
@@ -12,7 +12,6 @@ export class {{&name}} {
 		{{name}}: {{typescriptType}};
 	{{/isArray}}
 {{/properties}}
-
 {{#refs}}
 	{{#isArray}}
 		{{name}}: {{typescriptType}}[];
