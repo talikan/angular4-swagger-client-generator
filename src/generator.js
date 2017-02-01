@@ -178,12 +178,23 @@ var Generator = (function () {
 
                     parameter.camelCaseName = that.camelCase(parameter.name);
 
-                    if (parameter.type === 'integer' || parameter.type === 'double')
+
+                    // lets also check for a bunch of Java objects!
+                    if (parameter.type === 'integer' || parameter.type === 'double' || parameter.type == 'Integer') {
                         parameter.typescriptType = 'number';
-                    else if(parameter.type === 'object')
+                    }
+                    else if(parameter.type == 'String') {
+                        parameter.typescriptType = 'string';
+                    }
+                    else if(parameter.type == 'Boolean') {
+                        parameter.typescriptType = 'boolean';
+                    }
+                    else if(parameter.type === 'object') {
                         parameter.typescriptType = 'any';
-                    else
+                    }
+                    else {
                         parameter.typescriptType = parameter.type;
+                    }
 
 
                     if (parameter.enum && parameter.enum.length === 1) {
@@ -214,13 +225,20 @@ var Generator = (function () {
                 if (method.parameters.length > 0)
                     method.parameters[method.parameters.length - 1].last = true;
 
-                var responseSchema = op.responses["200"].schema;
+              if ( op.responses["200"] != undefined ) {
+                  var responseSchema = op.responses["200"].schema;
 
-                if(_.has(responseSchema, '$ref')){
-                    method.response = that.camelCase(responseSchema["$ref"].replace("#/definitions/", ""));
-                }else{
-                    method.response  = 'any'; //Do some more stuff here!
+                  if(_.has(responseSchema, '$ref')){
+                      method.response = that.camelCase(responseSchema["$ref"].replace("#/definitions/", ""));
+                  }else{
+                      method.response  = 'any'; //Do some more stuff here!
+                  }
+              }
+              // check non-200 response codes
+              else {
+                      method.response  = 'any'; //Do some more stuff here!
                 }
+
 
                 data.methods.push(method);
             });
