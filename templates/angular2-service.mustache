@@ -1,10 +1,9 @@
 /* tslint:disable */
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { Http, Response, Headers } from '@angular/http';
 import { {{#definitions}}{{name}}{{^last}}, {{/last}}{{/definitions}} } from './models';
 import 'rxjs/Rx';
 import {Observable} from "rxjs";
-import {Action} from "@ngrx/store";
 
 @Injectable()
 /**
@@ -12,9 +11,7 @@ import {Action} from "@ngrx/store";
 */
 export class ApiClientService {
 
-    public domain : string = "http://localhost:8080/clamy/services/rest";
-
-    constructor(public http: Http) {
+    constructor(public http: Http, @Inject('domain') private domain : string ) {
         if(this.domain.length === 0) {
             throw new Error('Domain parameter must be specified as a string.');
         }
