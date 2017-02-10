@@ -7,11 +7,11 @@ This package generates a angular2 typescript class from a swagger v2.0 specifica
 # How to get it working
 
 ## Installation
-1. `npm install angular2-swagger-client-generator`
+1. `npm install angular2-swagger-client-generator-camel`
 
 or
 
-1. get it from github `git clone https://github.com/nvdnkpr/angular2-swagger-client-generator`
+1. get it from github `git clone https://github.com/mike4263/angular2-swagger-client-generator`
 1. `cd angular2-swagger-client-generator`
 1. `npm install`
 1. `npm run build`
