@@ -1,10 +1,9 @@
 /* tslint:disable */
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { Http, Response, Headers } from '@angular/http';
 import { {{#definitions}}{{name}}{{^last}}, {{/last}}{{/definitions}} } from './models';
 import 'rxjs/Rx';
 import {Observable} from "rxjs";
-import {Action} from "@ngrx/store";
 
 @Injectable()
 /**
@@ -12,7 +11,7 @@ import {Action} from "@ngrx/store";
 */
 export class ApiClientService {
 
-    constructor(public http: Http, public domain:string) {
+    constructor(public http: Http, @Inject('domain') private domain : string ) {
         if(this.domain.length === 0) {
             throw new Error('Domain parameter must be specified as a string.');
         }
@@ -33,7 +32,7 @@ export class ApiClientService {
     * @param {(n: any) => Action} failure - This is a callback function that returns an action and is used when a call to the service fails
     *
     */
-    public {{&methodName}}({{#parameters}}{{&camelCaseName}}: {{typescriptType}}{{^last}}, {{/last}}{{/parameters}}, success: (n: {{&response}}) => Action, failure: () => Action) : Observable<Action>{
+    public {{&methodName}}({{#parameters}}{{&camelCaseName}}: {{typescriptType}}, {{/parameters}}) : Observable<{{&response}}>{
         let queryParameters = {};
         let headers = new Headers();
     {{#parameters}}
@@ -66,9 +65,6 @@ export class ApiClientService {
         }
             {{/isSingleton}}
         {{/isHeaderParameter}}
-        {{#isBodyParameter}}
-                payload['{{&name}}'] = {{&camelCaseName}};
-        {{/isBodyParameter}}
         {{#isFormParameter}}
             {{#isSingleton}}
         form['{{&name}}'] = '{{&singleton}}';
@@ -81,13 +77,17 @@ export class ApiClientService {
         {{/isFormParameter}}
     {{/parameters}}
         let uri = `{{&backTickPath}}`;
+        
+        {{^hasPayload}}
+        let body = null;
+        {{/hasPayload}}
 
-        return this.MakeRequest<{{&response}}>(uri, headers, queryParameters, success, failure);
+        return this.MakeRequest<{{&response}}>("{{angular2httpMethod}}", uri, headers, queryParameters,  {{hasPayload}}, body);
     }
 
 {{/methods}}
 
-    private MakeRequest<T>(uri:string, headers : Headers, queryParameters: any, success: (n: T) => Action, failure: () => Action) : Observable<Action> {
+    private MakeRequest<T>(httpVerb:string, uri:string, headers : Headers, queryParameters: any,  hasPayload : boolean, body : any) : Observable<T> {
 
         headers.append('Content-Type', 'application/json');
 
@@ -105,10 +105,20 @@ export class ApiClientService {
             }
         }
 
-        return this.http
-            .get(this.domain + uri, { headers: headers })
-            .map(res => <T>res.json())
-            .map(data => success(data))
-            .catch(x => Observable.of(failure()))
+        if (httpVerb == "get") {
+          return this.http
+              .get(this.domain + uri, { headers: headers })
+              .map(res => <T>res.json());
+        }
+        else if (httpVerb == "put") {
+          return this.http
+              .put(this.domain + uri, body, { headers: headers })
+              .map(res => <T>res.json());
+        }
+        else if (httpVerb == "post") {
+          return this.http
+              .post(this.domain + uri, body, { headers: headers })
+              .map(res => <T>res.json());
+        }
     }
 }
