@@ -15,7 +15,7 @@ The generated service class uses new [HttpClient](https://angular.io/guide/http)
 or  
 
 `git clone https://github.com/lotjomik/angular4-swagger-client-generator`  
-`cd angular2-swagger-client-generator`  
+`cd angular4-swagger-client-generator`  
 `npm install`  
 `npm run build`  
 
