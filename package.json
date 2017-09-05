@@ -1,27 +1,27 @@
 {
-  "name": "angular2-swagger-client-generator-camel",
-  "version": "0.1.2",
-  "description": "Angular 2 API client generator from swagger json with Camel ",
-  "homepage": "https://github.com/mbattles/angular2-swagger-client-generator",
+  "name": "angular4-swagger-client-generator",
+  "version": "0.1.3",
+  "description": "Angular4 API client generator from Swagger JSON with Camel case settigs",
+  "homepage": "https://github.com/lotjomik/angular4-swagger-client-generator",
   "main": "index.js",
   "bin": {
-    "a2apigen": "./bin/a2apigen.js"
+    "a4apigen": "./bin/a4apigen.js"
   },
   "author": {
-    "name": "Mike Battles",
-    "email": "mbattles@redhat.com"
+    "name": "Mika Lötjönen",
+    "email": "mika.lotjonen@tieto.com"
   },
   "bugs": {
-    "url": "https://github.com/mike4263/angular2-swagger-client-generator/issues"
+    "url": "https://github.com/lotjomik/angular4-swagger-client-generator/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:mike4263/angular2-swagger-client-generator.git"
+    "url": "git@github.com:lotjomik/angular4-swagger-client-generator.git"
   },
   "keywords": [
     "swagger",
     "rest",
-    "angular2",
+    "angular4",
     "angular",
     "scaffolding",
     "webapi",
@@ -29,23 +29,20 @@
     "generator",
     "camel"
   ],
-  "license": "APACHE",
+  "license": "Apache-2.0",
   "scripts": {
-    "a2apigen": "a2apigen -s swagger.json",
+    "a4apigen": "a4apigen -s swagger.json",
     "build": "gulp"
   },
   "dependencies": {
     "gulp": "^3.9.1",
-    "js-beautify": "^1.5.10",
-    "lodash": "^3.10.1",
+    "js-beautify": "^1.6.14",
+    "lodash": "^4.17.4",
     "mkdirp": "^0.5.1",
-    "mustache": "^2.2.0",
+    "mustache": "^2.3.0",
     "optimist": "^0.6.1",
-    "request": "^2.67.0",
-    "tslint": "^3.1.1",
-    "typescript": "^1.7.3"
-  },
-  "devDependencies": {
-    "gulp": "^3.9.1"
+    "request": "^2.81.0",
+    "tslint": "^5.7.0",
+    "typescript": "^2.1.5"
   }
 }

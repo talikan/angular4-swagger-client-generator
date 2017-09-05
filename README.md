@@ -1,47 +1,47 @@
-# angular2-swagger-apiclient-generator
-Angular 2 API client generator from swagger json
+# angular4-swagger-client-generator
+Angular4 API client generator from Swagger JSON specification
 
 # Description
-This package generates a angular2 typescript class from a swagger v2.0 specification file. The code is generated using mustache templates.
+This package generates a Angular 4 TypeScript classes from a Swagger v2.0 specification file. The code is generated using Mustache templates.
+
+The generated service class uses new [HttpClient](https://angular.io/guide/http) module of Angular 4.
 
 # How to get it working
 
 ## Installation
-1. `npm install angular2-swagger-client-generator-camel`
 
-or
+`npm install angular4-swagger-client-generator`
 
-1. get it from github `git clone https://github.com/mike4263/angular2-swagger-client-generator`
-1. `cd angular2-swagger-client-generator`
-1. `npm install`
-1. `npm run build`
+or  
+
+`git clone https://github.com/lotjomik/angular4-swagger-client-generator`  
+`cd angular2-swagger-client-generator`  
+`npm install`  
+`npm run build`  
 
 ## Usage
 
-From commandline run:
+From command line, run:
 ```
-a2apigen -s [yopur/path/to/swagger.json]
+a4apigen -s [yopur/path/to/swagger.json]
 ```
 
 or
 ```
-a2apigen -u [url/of/your/swagger.json]
+a4apigen -u [url/of/your/swagger.json]
 ```
 
 ## Example usage:
 
 This command will generate API client described in swagger.json file to ./out folder
 ```
-a2apigen -s .\tests\apis\swagger.json -o ./out
+a4apigen -s ./tests/apis/swagger.json -o ./out
 ```
 
 or from repository directory run:
 ```
-node ./src/main -s .\tests\apis\swagger.json -o ./out
+node ./src/a4apigen -s ./tests/apis/swagger.json -o ./out
 ```
 
-##Note:
-This project was inspired by:
-
-[swagger-js-codegen](https://github.com/wcandillon/swagger-js-codegen) project
-
+## Note:
+This project was inspired by [swagger-js-codegen](https://github.com/wcandillon/swagger-js-codegen) project.

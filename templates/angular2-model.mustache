@@ -1,23 +1,22 @@
-/* tslint:disable */
 {{#imports}}
-import { {{.}} } from "./{{.}}"
+import { {{.}} } from './{{#lower}}{{.}}{{/lower}}.model'
 {{/imports}}
 
 export interface {{&name}} {
 {{#properties}}
-	{{#isArray}}
-		{{name}}: {{typescriptType}}[];
-	{{/isArray}}
-	{{^isArray}}
-		{{name}}: {{typescriptType}};
-	{{/isArray}}
+  {{#isArray}}
+  {{name}}: {{typescriptType}}[];
+  {{/isArray}}
+  {{^isArray}}
+  {{name}}: {{typescriptType}};
+  {{/isArray}}
 {{/properties}}
 {{#refs}}
-	{{#isArray}}
-		{{name}}: {{typescriptType}}[];
-	{{/isArray}}
-	{{^isArray}}
-		{{name}}: {{typescriptType}};
-	{{/isArray}}
+  {{#isArray}}
+  {{name}}: {{typescriptType}}[];
+  {{/isArray}}
+  {{^isArray}}
+  {{name}}: {{typescriptType}};
+  {{/isArray}}
 {{/refs}}
 }
