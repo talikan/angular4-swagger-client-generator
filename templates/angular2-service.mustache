@@ -47,7 +47,14 @@ export class ApiClientService {
           {{/isPatternType}}
           {{^isPatternType}}
     if ({{&camelCaseName}}) {
+          {{#isArray}}
+      Object.keys({{&camelCaseName}}).map(value => {
+        params = params.set('{{&name}}', value + '');
+      });
+          {{/isArray}}
+          {{^isArray}}
       params = params.set('{{&name}}', {{&camelCaseName}} + '');
+          {{/isArray}}
     }
           {{/isPatternType}}
         {{/isSingleton}}
@@ -58,7 +65,14 @@ export class ApiClientService {
         {{/isSingleton}}
         {{^isSingleton}}
     if ({{&camelCaseName}}) {
+          {{#isArray}}
+      Object.keys({{&camelCaseName}}).map(value => {
+        headers = headers.set('{{&name}}', value + '');
+      });
+          {{/isArray}}
+          {{^isArray}}
       headers = headers.set('{{&name}}', {{&camelCaseName}} + '');
+          {{/isArray}}
     }
         {{/isSingleton}}
       {{/isHeaderParameter}}
