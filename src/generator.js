@@ -193,6 +193,8 @@ var Generator = (function () {
                         parameter.typescriptType = 'boolean';
                     } else if (parameter.type === 'object') {
                         parameter.typescriptType = 'any';
+                    } else if (parameter.type === 'array') {
+                        parameter.typescriptType = that.camelCase(parameter.items['type']) +'[]';
                     } else {
                         parameter.typescriptType = that.camelCase(parameter.type);
                     }
@@ -375,14 +377,14 @@ var Generator = (function () {
         var tokens = [];
 
         text.split('-').forEach(function (token, index) {
-            tokens.push(token[0].toUpperCase() + token.substring(1));
+            tokens.push((index > 0 ? token[0].toUpperCase() : token[0]) + token.substring(1));
         });
 
         var partialres = tokens.join('');
         tokens = [];
 
         partialres.split('.').forEach(function (token, index) {
-            tokens.push(token[0].toUpperCase() + token.substring(1));
+            tokens.push((index > 0 ? token[0].toUpperCase() : token[0]) + token.substring(1));
         });
 
         return tokens.join('');
