@@ -1,5 +1,5 @@
 import { Inject, Injectable, Optional } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 
 import { {{#definitions}}{{name}}{{^last}}, {{/last}}{{/definitions}} } from './models';
@@ -23,12 +23,13 @@ export class ApiClientService {
   {{#summaryLines}}
   * {{&.}}
   {{/summaryLines}}
-  * @method {{&methodName}}
+  * Method {{&methodName}}
   {{#parameters}}
-  {{^isSingleton}}* @param {{=<% %>=}}{<%&typescriptType%>}<%={{ }}=%> {{&camelCaseName}} The {{&description}}{{/isSingleton}}
+  {{^isSingleton}}* @param {{&camelCaseName}} The {{&description}}{{/isSingleton}}
   {{/parameters}}
+  * @return The full HTTP response as Observable
   */
-  public {{&methodName}}({{#parameters}}{{&camelCaseName}}: {{typescriptType}}{{^last}}, {{/last}}{{/parameters}}): Observable<{{&response}}> {
+  public {{&methodName}}({{#parameters}}{{&camelCaseName}}: {{typescriptType}}{{^last}}, {{/last}}{{/parameters}}): Observable<HttpResponse<{{&response}}>> {
     let uri = `{{&backTickPath}}`;
     let headers = new HttpHeaders();
     let params = new HttpParams();
@@ -81,15 +82,15 @@ export class ApiClientService {
   }
 
 {{/methods}}
-  private sendRequest<T>(method: string, uri: string, headers: HttpHeaders, params: HttpParams, body: any): Observable<T> {
+  private sendRequest<T>(method: string, uri: string, headers: HttpHeaders, params: HttpParams, body: any): Observable<HttpResponse<T>> {
     if (method === 'get') {
-      return this.http.get<T>(this.domain + uri, { headers: headers, params: params });
+      return this.http.get<T>(this.domain + uri, { headers: headers.set('Accept', 'application/json'), params: params, observe: 'response' });
     } else if (method === 'put') {
-      return this.http.put<T>(this.domain + uri, body, { headers: headers, params: params });
+      return this.http.put<T>(this.domain + uri, body, { headers: headers.set('Content-Type', 'application/json'), params: params, observe: 'response' });
     } else if (method === 'post') {
-      return this.http.post<T>(this.domain + uri, body, { headers: headers, params: params });
+      return this.http.post<T>(this.domain + uri, body, { headers: headers.set('Content-Type', 'application/json'), params: params, observe: 'response' });
     } else if (method === 'delete') {
-      return this.http.delete<T>(this.domain + uri, { headers: headers, params: params });
+      return this.http.delete<T>(this.domain + uri, { headers: headers, params: params, observe: 'response' });
     } else {
       console.error('Unsupported request: ' + method);
       return Observable.throw('Unsupported request: ' + method);
