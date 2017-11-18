@@ -1,22 +1,4 @@
-{{#imports}}
-import { {{.}} } from './{{#lower}}{{.}}{{/lower}}.model'
-{{/imports}}
+import { _{{&name}} } from './_{{#lower}}{{&name}}{{/lower}}.model'
 
-export interface {{&name}} {
-{{#properties}}
-  {{#isArray}}
-  {{name}}: {{typescriptType}}[];
-  {{/isArray}}
-  {{^isArray}}
-  {{name}}: {{typescriptType}};
-  {{/isArray}}
-{{/properties}}
-{{#refs}}
-  {{#isArray}}
-  {{name}}: {{typescriptType}}[];
-  {{/isArray}}
-  {{^isArray}}
-  {{name}}: {{typescriptType}};
-  {{/isArray}}
-{{/refs}}
+export interface {{&name}} extends _{{&name}} {
 }
