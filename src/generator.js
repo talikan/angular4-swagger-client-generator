@@ -25,6 +25,7 @@ var Generator = (function () {
         this.templates = {
             'class': fs.readFileSync(__dirname + '/../templates/angular2-service.mustache', 'utf-8'),
             'model': fs.readFileSync(__dirname + '/../templates/angular2-model.mustache', 'utf-8'),
+            'model_base': fs.readFileSync(__dirname + '/../templates/angular2-model-base.mustache', 'utf-8'),
             'models_export': fs.readFileSync(__dirname + '/../templates/angular2-models-export.mustache', 'utf-8')
         };
 
@@ -77,12 +78,25 @@ var Generator = (function () {
 
         _.forEach(this.viewModel.definitions, function (definition) {
             that.LogMessage('Rendering template for model ', definition.name);
-            var result = that.renderLintAndBeautify(that.templates.model, definition, that.templates);
 
-            var outfile = outputdir + '/' + definition.name.toLowerCase() + '.model.ts';
+            // always write the base file
+            var resultBase = that.renderLintAndBeautify(that.templates.model_base, definition, that.templates);
+            var outfile = outputdir + '/_' + definition.name.toLowerCase() + '.model.ts';
+            that.LogMessage('Creating base file', outfile);
+            fs.writeFileSync(outfile, resultBase, 'utf-8');
 
-            that.LogMessage('Creating output file', outfile);
-            fs.writeFileSync(outfile, result, 'utf-8')
+            // only write the wrapper file if it doesn't already exist
+            outfile = outputdir + '/' + definition.name.toLowerCase() + '.model.ts';
+            if (true || !fs.existsSync(outfile)) {
+                var resultWrapper = that.renderLintAndBeautify(that.templates.model, definition, that.templates);
+                that.LogMessage('Wrapper does not exist, Creating file', outfile);
+                fs.writeFileSync(outfile, resultWrapper, 'utf-8');
+            }
+            else {
+                that.LogMessage('Wrapper already exists, skipping', outfile);
+            }
+
+
         });
     };
 
@@ -119,8 +133,8 @@ var Generator = (function () {
             description: swagger.info.description,
             isSecure: swagger.securityDefinitions !== undefined,
             swagger: swagger,
-            domain: (swagger.schemes && swagger.schemes.length > 0 ? swagger.schemes[0] : 'http') + '://' + 
-                (swagger.host ? swagger.host : 'localhost') + ('/' === swagger.basePath ? '' : swagger.basePath),
+            domain: (swagger.schemes && swagger.schemes.length > 0 ? swagger.schemes[0] : 'http') + '://' +
+            (swagger.host ? swagger.host : 'localhost') + ('/' === swagger.basePath ? '' : swagger.basePath),
             methods: [],
             definitions: []
         };
@@ -183,6 +197,7 @@ var Generator = (function () {
                     }
 
                     parameter.camelCaseName = that.camelCase(parameter.name);
+                    that.LogMessage('parameter ' + parameter.name);
 
                     // lets also check for a bunch of Java objects!
                     if (parameter.type === 'integer' || parameter.type === 'double' || parameter.type == 'Integer') {
@@ -194,7 +209,7 @@ var Generator = (function () {
                     } else if (parameter.type === 'object') {
                         parameter.typescriptType = 'any';
                     } else if (parameter.type === 'array') {
-                        parameter.typescriptType = that.camelCase(parameter.items['type']) +'[]';
+                        parameter.typescriptType = that.camelCase(parameter.items['type']) + '[]';
                         parameter.isArray = true;
                     } else {
                         parameter.typescriptType = that.camelCase(parameter.type);
@@ -235,7 +250,7 @@ var Generator = (function () {
                         if (responseSchema['type'] === 'array') {
                             var items = responseSchema.items;
                             if (_.has(items, '$ref')) {
-                              method.response = that.camelCase(items['$ref'].replace('#/definitions/', '')) + '[]';
+                                method.response = that.camelCase(items['$ref'].replace('#/definitions/', '')) + '[]';
                             } else {
                                 method.response = that.camelCase(items['type']) + '[]';
                             }
@@ -266,7 +281,7 @@ var Generator = (function () {
             };
 
             // lower keyword to templates
-            definition.lower = function() {
+            definition.lower = function () {
                 return function (text, render) {
                     return render(text).toLowerCase();
                 }
@@ -299,6 +314,10 @@ var Generator = (function () {
                     property.typescriptType = 'number';
                 } else if (property.type === 'object') {
                     property.typescriptType = 'any';
+                } else if (property.name.slice(-2) === 'Yn') {
+                    // custom - oracle doesn't have boolean types, so our variable naming convention is to have booleans
+                    // end in Yn.  (activeYn, roleAssignedYn, etc).
+                    property.typescriptType = 'string | boolean';
                 } else {
                     property.typescriptType = property.type;
                 }
