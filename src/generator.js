@@ -317,7 +317,7 @@ var Generator = (function () {
                 } else if (property.name.slice(-2) === 'Yn') {
                     // custom - oracle doesn't have boolean types, so our variable naming convention is to have booleans
                     // end in Yn.  (activeYn, roleAssignedYn, etc).
-                    property.typescriptType = 'string | boolean';
+                    property.typescriptType = 'boolean';
                 } else {
                     property.typescriptType = property.type;
                 }
